@@ -1,0 +1,479 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Loot Box</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Iceberg&family=Pirata+One&family=Roboto:wght@400;500;700&family=Orbitron&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+        }
+        :root {
+            --accent-color: #efa00b;
+            --accent-hover: #d39504;
+            --accent-glow: #300A0A;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(0, 255, 234, 0.2);
+        }
+        header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .logo img { height: 50px; }
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 30px;
+            position: relative;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+        .search-bar input::placeholder { color: #aaa; }
+        .search-bar svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+        }
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+            transition: fill 0.3s ease, transform 0.3s ease;
+        }
+        .icon:hover { fill: var(--accent-color); transform: scale(1.1); }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        nav ul li a {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: var(--accent-color);
+            transform: scale(1.05);
+        }
+        .user-menu { display: flex; align-items: center; gap: 15px; }
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            background: rgba(0, 255, 234, 0.2);
+            border: 1px solid rgba(0, 255, 234, 0.3);
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .profile-btn:hover {
+            background: rgba(0, 255, 234, 0.4);
+            transform: translateY(-2px);
+        }
+        .profile-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #000;
+        }
+        .menu-toggle { display: none; }
+
+        .checkout-container {
+            padding: 120px 20px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .checkout-title {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+        .checkout-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+        .order-summary, .payment-form {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .summary-title, .payment-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .test-mode-badge {
+            display: inline-block;
+            background: #ffa50033;
+            color: var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-color);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23efa00b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+        .form-group select option {
+            background-color: #111;
+            color: #fff;
+            padding: 10px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px rgba(239, 160, 11, 0.3);
+        }
+        .payment-details {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            border: 1px solid var(--accent-color);
+            animation: fadeIn 0.6s ease;
+        }
+        .payment-details.visible {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .cod-message {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.4rem;
+            color: #4caf50;
+        }
+        .secure-note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 30px;
+            text-align: center;
+        }
+        .secure-icons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            opacity: 0.7;
+        }
+        .place-order-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: #000;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 6px 20px rgba(239, 160, 11, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 30px;
+        }
+        .place-order-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 40px var(--accent-glow);
+        }
+        .back-to-cart {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .back-to-cart:hover {
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 992px) {
+            .checkout-content { grid-template-columns: 1fr; }
+            .card-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .checkout-title { font-size: 3rem; }
+            .search-bar { order: 3; margin: 20px 0 0; max-width: none; }
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: #111;
+                flex-direction: column;
+                padding-top: 40px;
+                gap: 30px;
+                transition: left 0.4s ease;
+            }
+            nav ul.active { left: 0; }
+            .menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Loot Box Logo">
+        </a>
+    </div>
+    <div class="search-bar">
+        <form action="{% url 'search' %}" method="get">
+            <svg viewBox="0 0 24 24">
+                <path d="M21 21l-4.35-4.35M19 10.5A8.5 8.5 0 1 1 2 10.5a8.5 8.5 0 0 1 17 0z"/>
+            </svg>
+            <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+        </form>
+    </div>
+    <button class="menu-toggle" id="menuToggle">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M3 12h18M3 6h18M3 18h18"/>
+        </svg>
+    </button>
+    <nav>
+        <ul id="navMenu">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="#products">Shop</a></li>
+            <li><a href="{% url 'cart' %}"><svg class="icon" viewBox="0 0 24 24"><path d="M9 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M20 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></a></li>
+            {% if user.is_authenticated %}
+            <li><a href="{% url 'orders:history' %}">My Orders</a></li>
+            <li class="user-menu">
+                <span>Welcome, {{ user.username }}!</span>
+                <a href="{% url 'profile' %}" class="profile-btn">
+                    <div class="profile-icon">{{ user.username|first|upper }}</div>
+                    Profile
+                </a>
+            </li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+<div class="checkout-container">
+    <h1 class="checkout-title">Secure Checkout</h1>
+
+    <div class="checkout-content">
+        <div class="order-summary">
+            <h2 class="summary-title">Order Summary</h2>
+            {% for item in cart_items %}
+            <div class="summary-row">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                <span>₹ {{ item.product.price|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>₹ {{ total|floatformat:2 }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>Free</span>
+            </div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span>₹ {{ total|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <div class="payment-form">
+            <h2 class="payment-title">Payment Information</h2>
+
+            <div class="test-mode-badge">
+                🔒 TEST MODE — No real payment will be processed
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="address">Shipping Address</label>
+                    <textarea id="address" name="address" rows="4" placeholder="Enter your full delivery address" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select id="payment_method" name="payment_method" required onchange="togglePaymentDetails()">
+                        <option value="cod">Cash on Delivery</option>
+                        <option value="card">Credit/Debit Card</option>
+                    </select>
+                </div>
+
+                <!-- COD message -->
+                <div id="cod_details" class="payment-details visible">
+                    <p class="cod-message">
+                        ✅ You will pay in cash when the delivery arrives.
+                    </p>
+                </div>
+
+                <!-- Card details -->
+                <div id="card_details" class="payment-details">
+                    <div class="form-group">
+                        <label for="card_number">Card Number</label>
+                        <input type="text" id="card_number" name="card_number" placeholder="4242 4242 4242 4242"  maxlength="19">
+                    </div>
+                    <div class="card-row">
+                        <div class="form-group">
+                            <label for="expiry">Expiry Date</label>
+                            <input type="text" id="expiry" name="expiry" placeholder="MM/YY"  maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" name="cvv" placeholder="123"  maxlength="4">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="place-order-btn" id="submit-btn">
+                    Confirm Order (Cash on Delivery)
+                </button>
+            </form>
+
+            <div class="secure-note">
+                <p>Your payment information is encrypted and secure.</p>
+                <div class="secure-icons">
+                    <span>🔒 SSL Secured</span>
+                    <span>💳 Visa</span>
+                    <span>💳 MasterCard</span>
+                </div>
+            </div>
+
+            <a href="{% url 'cart' %}" class="back-to-cart">← Back to Cart</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePaymentDetails() {
+    const method = document.getElementById('payment_method').value;
+    const cod = document.getElementById('cod_details');
+    const card = document.getElementById('card_details');
+    const button = document.getElementById('submit-btn');
+
+    // Hide all sections
+    cod.classList.remove('visible');
+    card.classList.remove('visible');
+
+    if (method === 'cod') {
+        cod.classList.add('visible');
+        button.textContent = 'Confirm Order (Cash on Delivery)';
+    } else if (method === 'card') {
+        card.classList.add('visible');
+        button.textContent = `Pay ₹{{ total|floatformat:2 }} & Place Order`;
+    }
+}
+
+// Run on page load (COD is default)
+window.onload = togglePaymentDetails;
+</script>
+
+</body>
+</html>

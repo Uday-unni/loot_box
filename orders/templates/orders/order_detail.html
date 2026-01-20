@@ -1,0 +1,404 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.id }} Details - Loot Box</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Iceberg&family=Pirata+One&family=Roboto:wght@400;500;700&family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        :root {
+            --accent-color: #efa00b;
+            --accent-hover: #d39504;
+            --accent-glow: #300A0A;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border: rgba(0, 255, 234, 0.2);
+        }
+
+        header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo img { height: 50px; }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar input::placeholder { color: #aaa; }
+
+        .search-bar svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+            transition: fill 0.3s ease, transform 0.3s ease;
+        }
+        .icon:hover { fill: var(--accent-color); transform: scale(1.1); }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .user-menu { display: flex; align-items: center; gap: 15px; }
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            background: rgba(0, 255, 234, 0.2);
+            border: 1px solid rgba(0, 255, 234, 0.3);
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .profile-btn:hover {
+            background: rgba(0, 255, 234, 0.4);
+            transform: translateY(-2px);
+        }
+        .profile-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #000;
+        }
+
+        .menu-toggle { display: none; }
+
+        .detail-container {
+            padding: 120px 20px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .detail-title {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .order-id {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .order-status.processing { background: #ffa500; color: #000; }
+        .order-status.shipped { background: #4caf50; color: #fff; }
+        .order-status.delivered { background: #2196f3; color: #fff; }
+        .order-status.cancelled { background: #f44336; color: #fff; }
+
+        .order-info {
+            margin-bottom: 30px;
+        }
+
+        .order-info p {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .order-info strong {
+            color: var(--accent-color);
+        }
+
+        .order-items {
+            margin-top: 30px;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 80px 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .item-image img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            background: #222;
+            border-radius: 8px;
+        }
+
+        .item-name {
+            font-size: 1.2rem;
+        }
+
+        .item-price {
+            font-size: 1.1rem;
+            color: var(--accent-color);
+        }
+
+        .item-quantity {
+            font-size: 1.1rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 14px 30px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .no-order {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .no-order h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .search-bar { order: 3; margin: 20px 0 0; max-width: none; }
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: #111;
+                flex-direction: column;
+                padding-top: 40px;
+                gap: 30px;
+                transition: left 0.4s ease;
+            }
+            nav ul.active { left: 0; }
+            .menu-toggle { display: block; }
+            .detail-title { font-size: 3rem; }
+            .order-header { flex-direction: column; align-items: flex-start; }
+            .item-row { grid-template-columns: 80px 1fr; grid-template-rows: auto auto auto; }
+            .item-price, .item-quantity { grid-column: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Loot Box Logo">
+            </a>
+        </div>
+
+        <div class="search-bar">
+            <form action="{% url 'search' %}" method="get">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 21l-4.35-4.35M19 10.5A8.5 8.5 0 1 1 2 10.5a8.5 8.5 0 0 1 17 0z"/>
+                </svg>
+                <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+            </form>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+            </svg>
+        </button>
+
+        <nav>
+            <ul id="navMenu">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="#products">Shop</a></li>
+                <li><a href="{% url 'cart' %}"><svg class="icon" viewBox="0 0 24 24"><path d="M9 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M20 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></a></li>
+
+                {% if user.is_authenticated %}
+                <li class="user-menu">
+                    <span>Welcome, {{ user.username }}!</span>
+                    <a href="{% url 'profile' %}" class="profile-btn">
+                        <div class="profile-icon">{{ user.username|first|upper }}</div>
+                        Profile
+                    </a>
+                </li>
+                <li><a href="{% url 'history' %}">My Orders</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="detail-container">
+        <h1 class="detail-title">Order : #{{ order.id }} Details</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {% if 'success' in message.tags %}success{% else %}error{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="order-card">
+            <div class="order-info">
+                <div class="order-header">
+                    <span class="order-id">Order : #{{ order.id }}</span>
+                    <span class="order-status {{ order.status }}">{{ order.status|title }}</span>
+                </div>
+                <div class="order-details">
+                    <p><strong>Placed On:</strong> {{ order.created_at|date:"F j, Y, P" }}</p>
+                    <p><strong>Total Amount:</strong> ₹ {{ order.total_price|floatformat:2 }}</p>
+                    <p><strong>Delivery Address:</strong> {{ order.address }}</p>
+                    <p><strong>Payment Status:</strong> {{ order.paid|yesno:"Paid,Pending" }}</p>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <h3 style="margin-bottom: 15px; color: var(--accent-color);">Items in Order</h3>
+                <div class="item-list">
+                    {% for item in order.orderitem_set.all %}
+                    <div class="item-row">
+                        <div class="item-image">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="{% static 'images/default-product.jpg' %}" alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="item-name">{{ item.product.name }}</p>
+                            <p>Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <p class="item-price">₹ {{ item.price|floatformat:2 }}</p>
+                        <p>Total: ₹ {{ item.get_total|floatformat:2 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'orders:history' %}" class="back-btn">← Back to Order History</a>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+    </script>
+
+</body>
+</html>

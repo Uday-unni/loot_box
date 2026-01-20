@@ -1,0 +1,163 @@
+ {% extends 'home.html' %}
+{% load static %}
+
+{% block title %}My Profile - Loot Box{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="profile-container">
+        <h1 class="section-title">My Profile</h1>
+
+        <!-- Profile Avatar -->
+        <div class="profile-avatar">
+            {{ user.username|first|upper }}
+        </div>
+
+        <h2 class="profile-subtitle">Account Information</h2>
+
+        <!-- Credentials Display -->
+        <div class="profile-info">
+            <div class="info-row">
+                <strong>Username:</strong>
+                <span>{{ user.username }}</span>
+            </div>
+            <div class="info-row">
+                <strong>Email:</strong>
+                <span>{{ user.email|default:"Not provided" }}</span>
+            </div>
+            <div class="info-row">
+                <strong>Member Since:</strong>
+                <span>{{ user.date_joined|date:"F j, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <a href="{% url 'home' %}" class="btn back-btn">← Back to Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        padding: 120px 20px 80px;
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-container {
+        max-width: 600px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(218, 194, 12, 0.3);
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .profile-container .section-title {
+        font-size: 3rem;
+        margin-bottom: 50px;
+        text-shadow: 0 0 15px var(--accent-color);
+    }
+
+    /* Large Neon Avatar */
+    .profile-avatar {
+        width: 160px;
+        height: 160px;
+        background: var(--accent-color);
+        color: #000;
+        border-radius: 50%;
+        margin: 0 auto 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        font-weight: bold;
+        font-family: 'Orbitron', sans-serif;
+        box-shadow: 0 0 30px rgba(218, 194, 12, 0.6);
+        transition: all 0.3s;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 50px rgba(218, 194, 12, 0.8);
+    }
+
+    .profile-subtitle {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        color: var(--accent-color);
+        margin-bottom: 40px;
+        text-shadow: 0 0 10px var(--accent-color);
+    }
+
+    .profile-info {
+        text-align: left;
+        max-width: 420px;
+        margin: 0 auto 50px;
+        font-size: 1.2rem;
+        line-height: 2.2;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-row strong {
+        color: #eee;
+        font-family: 'Roboto Slab', serif;
+    }
+
+    .profile-actions {
+        margin-top: 20px;
+    }
+
+    .back-btn {
+        padding: 16px 45px;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(218, 194, 12, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: 50px 30px;
+        }
+        .profile-container .section-title {
+            font-size: 2.5rem;
+        }
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            font-size: 4rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-container {
+            padding: 40px 20px;
+        }
+        .info-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,182 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order #{{ order.id }} Confirmed - Loot Box</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Iceberg&family=Pirata+One&family=Roboto:wght@400;500;700&family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        :root {
+            --accent-color: #efa00b;
+            --accent-hover: #d39504;
+            --accent-glow: #300A0A;
+        }
+
+        .road {
+            position: absolute;
+            bottom: 0;
+            width: 300%;
+            height: 120px;
+            background: #111;
+            animation: moveRoad 8s linear infinite;
+        }
+
+        .road::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            height: 8px;
+            background: repeating-linear-gradient(90deg, #efa00b 0, #efa00b 40px, transparent 40px, transparent 80px);
+        }
+
+        @keyframes moveRoad {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .truck-animation {
+            position: absolute;
+            bottom: 40px;
+            left: -400px;
+            width: 350px;
+            animation: driveTruck 8s ease-in-out forwards;
+        }
+
+        @keyframes driveTruck {
+            0% { left: -400px; }
+            80% { left: 50%; transform: translateX(-50%); }
+            100% { left: 120%; }
+        }
+
+        .truck {
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated; /* Keeps pixel art sharp */
+        }
+
+        .success-container {
+            max-width: 700px;
+            padding: 60px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 234, 0.2);
+            border-radius: 25px;
+            box-shadow: 0 20px 50px var(--accent-glow);
+            z-index: 10;
+        }
+
+        .success-title {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .success-message {
+            font-size: 1.6rem;
+            margin-bottom: 40px;
+            color: #ddd;
+        }
+
+        .order-info {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 50px;
+        }
+
+        .order-id {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .order-info p {
+            font-size: 1.3rem;
+            margin: 12px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 50px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.4s ease;
+            margin: 0 15px;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 3px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .success-title { font-size: 3rem; }
+            .truck-animation { width: 250px; bottom: 20px; }
+            .btn { display: block; width: 80%; margin: 15px auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pixel Art Delivery Truck Animation -->
+    <div class="road"></div>
+    <div class="truck-animation">
+        <img src="https://cdnb.artstation.com/p/assets/images/images/021/551/537/original/abdullah-durrani-truck-new-export.gif?1572115142" alt="Delivery Truck" class="truck">
+    </div>
+
+    <div class="success-container">
+        <h1 class="success-title">Order Confirmed!</h1>
+        <p class="success-message">
+            Your loot is packed and on the road! The pixel truck is delivering it right now.
+        </p>
+
+        <div class="order-info">
+            <div class="order-id">Order #{{ order.id }}</div>
+            <p><strong>Total:</strong> ₹ {{ order.total_price|floatformat:2 }}</p>
+            <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Delivery Address:</strong><br>{{ order.address }}</p>
+            <p><strong>Placed on:</strong> {{ order.created_at|date:"F j, Y \a\t g:i A" }}</p>
+        </div>
+
+        <a href="{% url 'home' %}" class="btn">Continue Shopping</a>
+        <a href="{% url 'orders:history' %}" class="btn btn-secondary">My Orders</a>
+    </div>
+
+</body>
+</html>

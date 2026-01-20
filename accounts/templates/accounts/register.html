@@ -1,0 +1,218 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Loot Box</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Iceberg&family=Pirata+One&family=Roboto:wght@400;500;700&family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('https://plus.unsplash.com/premium_photo-1677870728119-52aef052d7ef?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        :root {
+            --accent-color: #efa00b;
+            --accent-hover: #d39504;
+            --accent-glow: #300A0A;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+        }
+
+        .register-container {
+            position: relative;
+            z-index: 2;
+            max-width: 460px;
+            width: 90%;
+            padding: 40px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 234, 0.2);
+            box-shadow: 0 10px 30px var(--accent-glow);
+            text-align: center;
+        }
+
+        .register-title {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        form {
+            text-align: left;
+        }
+
+        form p {
+            margin-bottom: 20px;
+        }
+
+        form label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-family: 'Silkscreen', sans-serif;
+        }
+
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 234, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        form input::placeholder {
+            color: #aaa;
+        }
+
+        form input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(239, 160, 11, 0.4);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            background: var(--accent-color);
+            color: #000;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .register-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .register-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .login-link {
+            margin-top: 30px;
+            display: block;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .login-link a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Messages */
+        .message-success {
+            color: #4caf50;
+            background: rgba(76, 175, 80, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .register-title {
+                font-size: 2.8rem;
+            }
+            .register-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-container">
+        <h1 class="register-title">REGISTER</h1>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                {% if 'error' in message.tags %}
+                    <script>
+                        alert("{{ message|escapejs }}");
+                    </script>
+                {% elif 'success' in message.tags %}
+                    <div class="message-success">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="register-btn">Register Now</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </div>
+    </div>
+
+</body>
+</html>

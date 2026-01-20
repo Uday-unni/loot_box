@@ -1,0 +1,710 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Loot Box</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Iceberg&family=Pirata+One&family=Roboto:wght@400;500;700&family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* Accent Colors */
+        :root {
+            --accent-color: #efa00b;
+            --text-light: #ffffff;
+            --text-muted: #cccccc;
+            --accent-hover: #d39504;
+            --accent-glow: rgba(239, 160, 11, 0.4);
+        }
+
+        /* Header */
+        header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo img { height: 50px; }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 30px;
+            position: relative;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+        .search-bar input::placeholder { color: #aaa; }
+        .search-bar svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            fill: var(--accent-color);
+            pointer-events: none;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+            transition: fill 0.3s ease, transform 0.3s ease;
+        }
+        .icon:hover { fill: var(--accent-color); transform: scale(1.1); }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Menu Style - exact match from home */
+        nav ul li a {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 8px 0;
+            position: relative;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: width 0.4s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .user-menu { display: flex; align-items: center; gap: 15px; }
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            background: rgba(239, 160, 11, 0.2);
+            border: 1px solid rgba(239, 160, 11, 0.3);
+            color: var(--text-light);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .profile-btn:hover {
+            background: rgba(239, 160, 11, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .profile-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #000;
+        }
+
+        /* Hamburger Menu Toggle - Hidden on desktop */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            color: var(--accent-color);
+        }
+
+        .svg-menu-toggle .line {
+            opacity: 1;
+            transform: rotate(0) translateY(0) translateX(0);
+            transform-origin: 1em 1em;
+            transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
+            fill: currentColor;
+        }
+
+        .svg-menu-toggle .line-1 {
+            transform-origin: 1em 2.5em;
+        }
+
+        .svg-menu-toggle .line-3 {
+            transform-origin: 1em 4.5em;
+        }
+
+        .menu-toggle.open .svg-menu-toggle .line-1 {
+            transform: rotate(45deg);
+        }
+
+        .menu-toggle.open .svg-menu-toggle .line-2 {
+            opacity: 0;
+        }
+
+        .menu-toggle.open .svg-menu-toggle .line-3 {
+            transform: rotate(-45deg);
+        }
+
+        /* Messages */
+        .messages {
+            max-width: 1400px;
+            margin: 100px auto 20px;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .message-success {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            color: #4caf50;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .message-error {
+            background: rgba(244, 67, 54, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            color: #f44336;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* Cart Section */
+        .cart-container {
+            padding: 120px 20px 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .cart-title {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--accent-color);
+        }
+
+        .cart-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .cart-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .cart-item-card {
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 234, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cart-item-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(239, 160, 11, 0.3);
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            background: #222;
+            border-radius: 10px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .cart-item-card:hover .item-name {
+            color: var(--accent-color);
+        }
+
+        .item-price {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(239, 160, 11, 0.3);
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: var(--accent-color);
+            color: #000;
+        }
+
+        .quantity-input {
+            width: 80px;
+            padding: 12px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(239, 160, 11, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .remove-save {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            color: #ff1744;
+            transform: scale(1.2);
+        }
+
+        .item-total {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .cart-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 234, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(239, 160, 11, 0.3);
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-color);
+            color: #000;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .checkout-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .checkout-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .checkout-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .empty-cart h2 {
+            font-family: 'Iceberg', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-cart p {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .shop-now-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-now-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .shop-now-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .shop-now-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .cart-content { grid-template-columns: 1fr; }
+            .cart-summary { position: static; }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                order: 1;
+            }
+
+            .menu-toggle {
+                display: block;
+                order: 2;
+            }
+
+            .search-bar {
+                order: 3;
+                width: 100%;
+                margin: 15px 0 0;
+                max-width: none;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 70px);
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(15px);
+                flex-direction: column;
+                padding-top: 60px;
+                gap: 40px;
+                transition: left 0.4s ease;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            nav ul.active { left: 0; }
+
+            nav ul li a {
+                font-size: 1.4rem;
+                padding: 12px 0;
+            }
+
+            .cart-title { font-size: 3rem; }
+            .cart-item-card { 
+                grid-template-columns: 100px 1fr; 
+                grid-template-rows: auto auto; 
+                gap: 20px;
+            }
+            .remove-save { 
+                grid-column: 1 / -1; 
+                flex-direction: row; 
+                justify-content: space-between; 
+                align-items: center; 
+            }
+            .quantity-controls { margin-top: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <a href="{% url 'home' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Loot Box Logo">
+            </a>
+        </div>
+
+        <div class="search-bar">
+            <form action="{% url 'search' %}" method="get">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 21l-4.35-4.35M19 10.5A8.5 8.5 0 1 1 2 10.5a8.5 8.5 0 0 1 17 0z"/>
+                </svg>
+                <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+            </form>
+        </div>
+
+        <!-- Hamburger menu button - visible only on mobile -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <svg class="icon" viewBox="0 0 100 100" aria-hidden="true">
+                <g class="svg-menu-toggle">
+                    <path class="line line-1" d="M5 13h90v14H5z"/>
+                    <path class="line line-2" d="M5 43h90v14H5z"/>
+                    <path class="line line-3" d="M5 73h90v14H5z"/>
+                </g>
+            </svg>
+        </button>
+
+        <nav>
+            <ul id="navMenu">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'home' %}#products">Shop</a></li>
+                <li><a href="{% url 'cart' %}"><svg class="icon" viewBox="0 0 24 24"><path d="M9 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M20 22a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></a></li>
+
+                {% if user.is_authenticated %}
+                <li class="user-menu">
+                    <span>Welcome, {{ user.username }}!</span>
+                    <a href="{% url 'profile' %}" class="profile-btn">
+                        <div class="profile-icon">{{ user.username|first|upper }}</div>
+                        Profile
+                    </a>
+                </li>
+                <li><a href="{% url 'orders:history' %}">My Orders</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="cart-container">
+        <h1 class="cart-title">Your Shopping Cart</h1>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                {% if 'success' in message.tags %}
+                    <div class="message-success">{{ message }}</div>
+                {% elif 'error' in message.tags %}
+                    <div class="message-error">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if cart_items %}
+        <div class="cart-content">
+            <div class="cart-items-list">
+                {% for item in cart_items %}
+                <div class="cart-item-card">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/default-product.jpg' %}" alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-price">₹ {{ item.product.price|floatformat:2 }}</div>
+                        <form method="POST" action="{% url 'update_cart' item.id %}" class="quantity-controls">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="decrease" class="quantity-btn">-</button>
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="quantity-input" required>
+                            <button type="submit" name="action" value="increase" class="quantity-btn">+</button>
+                        </form>
+                    </div>
+                    <div class="remove-save">
+                        <form method="POST" action="{% url 'remove_from_cart' item.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-btn">×</button>
+                        </form>
+                        <div class="item-total">₹ {{ item.total_price|floatformat:2 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="cart-summary">
+                <h2 class="summary-title">Order Summary</h2>
+                <div class="summary-row">
+                    <span>Subtotal ({{ count }} items)</span>
+                    <span>₹ {{ total|floatformat:2 }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>₹ {{ total|floatformat:2 }}</span>
+                </div>
+                <a href="{% url 'orders:checkout' %}" class="checkout-btn">Proceed to Checkout</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <h2>Your Cart is Empty</h2>
+            <p>Looks like you haven't added anything yet. Start shopping now!</p>
+            <a href="{% url 'home' %}" class="shop-now-btn">Shop Now</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('open');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link (mobile)
+        document.querySelectorAll('#navMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                menuToggle.classList.remove('open');
+            });
+        });
+    </script>
+
+</body>
+</html>
